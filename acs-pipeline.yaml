@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: acs-pipeline
+  namespace: acs-pipeline-demo
+spec:
+  description: ACS demo pipeline
+  params:
+    - name: image
+      type: string
+      description: Full name of image to scan (example -- gcr.io/rox/sample:5.0-rc1)
+  tasks:
+  - name: image-scan
+    taskRef:
+      name: acs-image-scan
+      kind: ClusterTask
+    params:
+    - name: image
+      value: $(params.image)
+    - name: acs_api_token
+      value: roxsecrets
+    - name: acs_central_endpoint
+      value: roxsecrets
+    - name: output_format
+      value: json
+  - name: image-check
+    taskRef:
+      name: acs-image-check
+      kind: ClusterTask
+    params:
+    - name: image
+      value: $(params.image)
+    - name: acs_api_token
+      value: roxsecrets
+    - name: acs_central_endpoint
+      value: roxsecrets
